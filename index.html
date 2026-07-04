@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Safari Zoo — There are some / There aren't any</title>
+<style>
+/* ============ FONTS ============ */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap');
+
+/* ============ RESET & BASE ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  font-family: 'Quicksand', sans-serif;
+  background: #eaf6f6;
+  color: #1f2d3d;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+button, .tapzone {
+  touch-action: manipulation;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+h1, h2, h3, .heading-font {
+  font-family: 'Baloo 2', sans-serif;
+}
+
+/* ============ TOP BAR ============ */
+.topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: linear-gradient(135deg, #0d6b5f, #159c8a);
+  padding: 12px 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+}
+
+.topbar-emoji { font-size: 1.4em; }
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.tab-btn:active { transform: scale(0.96); }
+
+.tab-btn.active {
+  background: #ffd23f;
+  color: #6b3f00;
+  box-shadow: 0 3px 0 #c99a1d;
+}
+
+/* ============ MAIN SCROLL AREA ============ */
+.main-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: scroll;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 20px 140px 20px;
+}
+
+.slide {
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-title {
+  text-align: center;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  color: #0d6b5f;
+  margin-bottom: 6px;
+}
+
+.slide-subtitle {
+  text-align: center;
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  color: #4a5c6a;
+  margin-bottom: 20px;
+}
+
+/* ============ HIGHLIGHT TOGGLE ROW ============ */
+.highlight-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 20px;
+  margin-bottom: 22px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.highlight-label {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  color: #0d6b5f;
+}
+
+.toggle-switch {
+  width: 64px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 20px;
+  background: #ccd6da;
+  border: none;
+  position: relative;
+  padding: 0;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch.on { background: #35b07a; }
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  transition: transform 0.25s ease;
+}
+
+.toggle-switch.on .toggle-knob {
+  transform: translateX(28px);
+}
+
+.highlight-key {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.key-chip {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.key-green { background: #35b07a; }
+.key-red { background: #e0574c; }
+
+/* ============ GRAMMAR TAGS (inline, toggled) ============ */
+.gtag {
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 1px 4px;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+body:not(.highlight-on) .gtag {
+  background: transparent;
+  color: inherit;
+}
+
+body.highlight-on .gtag-green {
+  background: #d3f3e2;
+  color: #0d6b3f;
+  font-weight: 800;
+}
+
+body.highlight-on .gtag-red {
+  background: #fbdad7;
+  color: #a3241a;
+  font-weight: 800;
+}
+
+/* ============ COMIC GRID ============ */
+.comic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 720px) {
+  .comic-grid { grid-template-columns: 1fr; }
+}
+
+.comic-panel {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  border: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-india   { border-color: #7fc8d6; background: linear-gradient(180deg, #eaf8fb, #ffffff); }
+.panel-china   { border-color: #9fd68a; background: linear-gradient(180deg, #eefaea, #ffffff); }
+.panel-empty   { border-color: #e0b95c; background: linear-gradient(180deg, #fdf3e0, #ffffff); }
+.panel-australia { border-color: #e88a5a; background: linear-gradient(180deg, #fdeee3, #ffffff); }
+
+.panel-label {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  color: #2c3e50;
+}
+
+.panel-scene {
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.5);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.panel-scene svg { width: 90px; height: 90px; }
+
+.empty-scene {
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: #a08554;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.speech-bubble {
+  background: #f4f7f6;
+  border-radius: 14px;
+  padding: 12px 16px;
+  position: relative;
+}
+
+.speech-bubble p {
+  font-size: clamp(0.95rem, 1.7vw, 1.15rem);
+  line-height: 1.5;
+  color: #263238;
+}
+
+.act-it-out {
+  margin-top: 22px;
+  text-align: center;
+  background: #fff5d6;
+  border: 2px dashed #e0b400;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: #6b4c00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.act-emoji { font-size: 1.6em; }
+
+/* ============ SLIDE 2: GRAMMAR CHART ============ */
+.chart-wrap {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  margin-bottom: 28px;
+}
+
+.chart-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.chart-block {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+}
+
+.block-there { background: #4a90b8; }
+.block-are, .block-arent { background: #35b07a; }
+.chart-negative .block-arent { background: #e0574c; }
+.block-some { background: #ffb238; color: #5c3a00; }
+.block-any { background: #ffb238; color: #5c3a00; }
+.chart-negative .block-any { background: #e88a3a; }
+.block-animal { background: #7a5cc4; }
+
+.chart-check { font-size: 1.8rem; }
+
+.chart-note {
+  text-align: center;
+  color: #6a5a2a;
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  background: #fff7de;
+  border-radius: 10px;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+/* ============ SENTENCE BUILDER ============ */
+.builder-section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+.builder-title {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: #0d6b5f;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.builder-hint {
+  text-align: center;
+  color: #5a6c7a;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  margin-bottom: 16px;
+}
+
+.builder-output {
+  min-height: 70px;
+  background: #f4f7f6;
+  border: 3px dashed #b8c4c0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  font-weight: 700;
+}
+
+.builder-placeholder {
+  color: #9aa8a4;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  font-style: italic;
+}
+
+.output-word {
+  padding: 8px 16px;
+  border-radius: 10px;
+  color: #fff;
+  animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.builder-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.word-block {
+  min-height: 56px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+  transition: transform 0.12s ease;
+}
+
+.word-block:active { transform: scale(0.94) translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+.wb-there { background: #4a90b8; }
+.wb-are { background: #35b07a; }
+.wb-arent { background: #e0574c; }
+.wb-some { background: #ffb238; color: #5c3a00; }
+.wb-any { background: #e88a3a; }
+.wb-animal { background: #7a5cc4; }
+
+.builder-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.builder-btn {
+  min-height: 52px;
+  padding: 10px 26px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+  transition: transform 0.12s ease;
+}
+
+.builder-btn:active { transform: scale(0.96); }
+
+.builder-clear { background: #e7ebea; color: #3a4a45; }
+.builder-say { background: #ffd23f; color: #6b3f00; }
+
+/* ============ SLIDE 3: PRACTICE SCENE ============ */
+.practice-scene {
+  background: linear-gradient(180deg, #cdeccb 0%, #a9d99f 60%, #c9b184 100%);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  min-height: 160px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.scene-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+}
+
+.scene-group-animals {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+}
+
+.scene-group-animals svg { width: 56px; height: 56px; }
+
+.scene-group-label {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #2c3e2a;
+  background: rgba(255,255,255,0.75);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+/* ============ PRACTICE SENTENCE LIST ============ */
+.practice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.practice-item {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.practice-item.correct { border-color: #35b07a; background: #f1fbf5; }
+.practice-item.incorrect { border-color: #e0574c; background: #fdf2f1; }
+
+.practice-num {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  color: #0d6b5f;
+  font-size: 1.1rem;
+  min-width: 26px;
+}
+
+.practice-sentence {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  flex: 1;
+}
+
+.slot-btn {
+  min-height: 48px;
+  min-width: 90px;
+  padding: 8px 16px;
+  border: 2px solid #c9d4d0;
+  border-radius: 12px;
+  background: #f4f7f6;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.7vw, 1.15rem);
+  color: #3a4a45;
+  transition: background 0.2s ease, transform 0.12s ease;
+}
+
+.slot-btn:active { transform: scale(0.95); }
+
+.slot-btn.filled-pos { background: #d3f3e2; color: #0d6b3f; border-color: #35b07a; }
+.slot-btn.filled-neg { background: #fbdad7; color: #a3241a; border-color: #e0574c; }
+
+.slot-btn.prefilled {
+  background: #e2e2e2;
+  color: #666;
+  border-style: dashed;
+}
+
+.feedback-icon {
+  font-size: 1.5rem;
+  min-width: 32px;
+  text-align: center;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.check-btn {
+  min-height: 56px;
+  padding: 14px 34px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0d6b5f, #159c8a);
+  color: #fff;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  box-shadow: 0 4px 0 #0a4d44;
+  transition: transform 0.12s ease;
+}
+
+.check-btn:active { transform: scale(0.96) translateY(2px); box-shadow: 0 2px 0 #0a4d44; }
+
+.check-score {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: #0d6b5f;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============ TOP NAV BAR ============ -->
+<header class="topbar">
+  <div class="topbar-title">
+    <span class="topbar-emoji">🦁</span>
+    <span>Safari Zoo Adventure</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-slide="1">1️⃣ Story</button>
+    <button class="tab-btn" data-slide="2">2️⃣ Grammar</button>
+    <button class="tab-btn" data-slide="3">3️⃣ Practice</button>
+  </nav>
+</header>
+
+<!-- ============ MAIN SCROLL AREA ============ -->
+<main class="main-content" id="mainContent">
+
+  <!-- ================= SLIDE 1: STORY ================= -->
+  <section class="slide" id="slide1">
+    <h2 class="slide-title">🚙 The Safari Story</h2>
+    <p class="slide-subtitle">Listen and read. What animals can they see?</p>
+
+    <div class="highlight-toggle-row">
+      <span class="highlight-label">🖍️ Highlight Grammar</span>
+      <button class="toggle-switch" id="highlightToggle" aria-pressed="false">
+        <span class="toggle-knob"></span>
+      </button>
+      <span class="highlight-key">
+        <span class="key-chip key-green">There are some</span>
+        <span class="key-chip key-red">There aren't any</span>
+      </span>
+    </div>
+
+    <div class="comic-grid">
+
+      <!-- PANEL 1 -->
+      <div class="comic-panel panel-india">
+        <div class="panel-label">🏞️ India Zone</div>
+        <div class="panel-scene" id="scene1"></div>
+        <div class="speech-bubble">
+          <p>Look! This is the India Zone.<br>
+          <span class="gtag gtag-green">There are some</span> crocodiles.</p>
+        </div>
+      </div>
+
+      <!-- PANEL 2 -->
+      <div class="comic-panel panel-china">
+        <div class="panel-label">🎋 China Zone</div>
+        <div class="panel-scene" id="scene2"></div>
+        <div class="speech-bubble">
+          <p>This is the China Zone.<br>
+          <span class="gtag gtag-green">There are some</span> pandas.<br>
+          <span class="gtag gtag-red">There aren't any</span> tigers.</p>
+        </div>
+      </div>
+
+      <!-- PANEL 3 -->
+      <div class="comic-panel panel-empty">
+        <div class="panel-label">❓ Mystery Zone</div>
+        <div class="panel-scene" id="scene3"></div>
+        <div class="speech-bubble">
+          <p>Where are we now? I don't know.<br>
+          <span class="gtag gtag-red">There aren't any</span> animals!</p>
+        </div>
+      </div>
+
+      <!-- PANEL 4 -->
+      <div class="comic-panel panel-australia">
+        <div class="panel-label">🦘 Australia Zone</div>
+        <div class="panel-scene" id="scene4"></div>
+        <div class="speech-bubble">
+          <p>Yes, there are! Look!<br>
+          <span class="gtag gtag-green">There are some</span> kangaroos! Hurray! 🎉</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="act-it-out">
+      <span class="act-emoji">🎭</span>
+      <span>Work in groups. Act out the story. <strong>Be a star! ⭐</strong></span>
+    </div>
+  </section>
+
+  <!-- ================= SLIDE 2: GRAMMAR ================= -->
+  <section class="slide" id="slide2" hidden>
+    <h2 class="slide-title">🧩 Grammar Focus</h2>
+    <p class="slide-subtitle">Look and read. How are the sentences built?</p>
+
+    <div class="chart-wrap">
+      <div class="chart-row chart-positive">
+        <div class="chart-block block-there">There</div>
+        <div class="chart-block block-are">are</div>
+        <div class="chart-block block-some">some</div>
+        <div class="chart-block block-animal">🐊 crocodiles</div>
+        <div class="chart-check">✅</div>
+      </div>
+      <div class="chart-row chart-negative">
+        <div class="chart-block block-there">There</div>
+        <div class="chart-block block-arent">aren't</div>
+        <div class="chart-block block-any">any</div>
+        <div class="chart-block block-animal">🐊 crocodiles</div>
+        <div class="chart-check">🚫</div>
+      </div>
+      <p class="chart-note">💡 <strong>aren't</strong> = <strong>are not</strong></p>
+    </div>
+
+    <div class="builder-section">
+      <h3 class="builder-title">🗣️ Sentence Builder — Tap the blocks, say it out loud!</h3>
+      <p class="builder-hint">Great for Zari, Nawzar &amp; Hazheer: build a sentence one word at a time.</p>
+
+      <div class="builder-output" id="builderOutput">
+        <span class="builder-placeholder">Tap blocks below to build your sentence...</span>
+      </div>
+
+      <div class="builder-tray" id="builderTray">
+        <!-- word blocks injected by JS -->
+      </div>
+
+      <div class="builder-actions">
+        <button class="builder-btn builder-clear" id="builderClear">🔄 Clear</button>
+        <button class="builder-btn builder-say" id="builderSay">🔊 Say It!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SLIDE 3: PRACTICE ================= -->
+  <section class="slide" id="slide3" hidden>
+    <h2 class="slide-title">🔍 Look &amp; Complete</h2>
+    <p class="slide-subtitle">Look at the picture. Tap the correct words to complete each sentence.</p>
+
+    <div class="practice-scene" id="practiceScene"></div>
+
+    <div class="practice-list" id="practiceList">
+      <!-- items injected by JS -->
+    </div>
+
+    <div class="check-row">
+      <button class="check-btn" id="checkAnswersBtn">✅ Check Answers</button>
+      <div class="check-score" id="checkScore"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ============ ANIMAL SVG LIBRARY ============
+const ANIMALS = {
+  crocodile: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="70" rx="38" ry="12" fill="#bfe6c6" opacity="0.5"/>
+    <path d="M10 60 Q15 45 35 48 L75 44 Q90 42 92 52 Q93 58 85 58 L80 62 L88 63 Q86 68 78 67 L70 65 Q50 70 30 66 Q15 64 10 60 Z" fill="#6fae4e" stroke="#4d7d34" stroke-width="2"/>
+    <circle cx="82" cy="50" r="3.5" fill="#2d3b1f"/>
+    <path d="M35 48 L75 44" stroke="#4d7d34" stroke-width="1.5" fill="none"/>
+    <path d="M40 44 L40 50 M50 43 L50 50 M60 42 L60 49 M70 42 L70 48" stroke="#4d7d34" stroke-width="1.5"/>
+    <path d="M88 58 L96 55 L94 60 L96 64 L88 63 Z" fill="#6fae4e" stroke="#4d7d34" stroke-width="1.5"/></svg>`,
+
+  panda: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="22" ry="6" fill="#000" opacity="0.08"/>
+    <circle cx="50" cy="55" r="32" fill="#fff" stroke="#2b2b2b" stroke-width="2"/>
+    <circle cx="28" cy="28" r="12" fill="#2b2b2b"/>
+    <circle cx="72" cy="28" r="12" fill="#2b2b2b"/>
+    <ellipse cx="34" cy="50" rx="10" ry="12" fill="#2b2b2b"/>
+    <ellipse cx="66" cy="50" rx="10" ry="12" fill="#2b2b2b"/>
+    <circle cx="34" cy="50" r="4" fill="#fff"/>
+    <circle cx="66" cy="50" r="4" fill="#fff"/>
+    <circle cx="35" cy="51" r="2" fill="#111"/>
+    <circle cx="67" cy="51" r="2" fill="#111"/>
+    <ellipse cx="50" cy="63" rx="6" ry="5" fill="#2b2b2b"/>
+    <path d="M50 68 Q50 74 44 74 M50 68 Q50 74 56 74" stroke="#2b2b2b" stroke-width="2" fill="none"/></svg>`,
+
+  tiger: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="24" ry="6" fill="#000" opacity="0.08"/>
+    <circle cx="50" cy="55" r="32" fill="#f4a13c" stroke="#8a4a10" stroke-width="2"/>
+    <path d="M22 32 L28 20 L34 34" fill="#f4a13c" stroke="#8a4a10" stroke-width="2"/>
+    <path d="M78 32 L72 20 L66 34" fill="#f4a13c" stroke="#8a4a10" stroke-width="2"/>
+    <ellipse cx="50" cy="60" rx="16" ry="14" fill="#fff"/>
+    <circle cx="38" cy="48" r="4" fill="#fff"/>
+    <circle cx="39" cy="49" r="2" fill="#111"/>
+    <circle cx="62" cy="48" r="4" fill="#fff"/>
+    <circle cx="61" cy="49" r="2" fill="#111"/>
+    <path d="M20 40 L34 42 M20 50 L36 50 M80 40 L66 42 M80 50 L64 50" stroke="#3a2210" stroke-width="2.5"/>
+    <ellipse cx="50" cy="62" rx="5" ry="4" fill="#8a4a10"/>
+    <path d="M50 66 Q50 72 44 72 M50 66 Q50 72 56 72" stroke="#3a2210" stroke-width="2" fill="none"/></svg>`,
+
+  kangaroo: `<svg viewBox="0 0 100 100"><ellipse cx="55" cy="90" rx="26" ry="5" fill="#000" opacity="0.08"/>
+    <path d="M35 85 Q20 70 25 50 Q28 35 45 28 Q60 22 68 32 Q74 40 70 48 Q80 50 82 62 Q84 74 72 80 Q62 86 50 85 Z" fill="#c78a53" stroke="#8a5a2e" stroke-width="2"/>
+    <ellipse cx="48" cy="30" rx="12" ry="14" fill="#c78a53" stroke="#8a5a2e" stroke-width="2"/>
+    <path d="M40 18 L38 8 L45 20 M56 18 L58 8 L51 20" fill="#c78a53" stroke="#8a5a2e" stroke-width="2"/>
+    <circle cx="44" cy="30" r="2.5" fill="#2b1a0a"/>
+    <circle cx="54" cy="30" r="2.5" fill="#2b1a0a"/>
+    <ellipse cx="49" cy="37" rx="4" ry="3" fill="#8a5a2e"/>
+    <path d="M78 60 Q95 62 92 78 Q90 88 78 84" fill="#c78a53" stroke="#8a5a2e" stroke-width="2"/>
+    <ellipse cx="34" cy="55" rx="9" ry="16" fill="#b87c46" stroke="#8a5a2e" stroke-width="2"/></svg>`,
+
+  fox: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="20" ry="5" fill="#000" opacity="0.08"/>
+    <circle cx="50" cy="55" r="28" fill="#e8793a" stroke="#a4491a" stroke-width="2"/>
+    <path d="M25 35 L15 15 L35 32 Z" fill="#e8793a" stroke="#a4491a" stroke-width="2"/>
+    <path d="M75 35 L85 15 L65 32 Z" fill="#e8793a" stroke="#a4491a" stroke-width="2"/>
+    <path d="M25 35 L20 22 L32 33 Z" fill="#fff"/>
+    <path d="M75 35 L80 22 L68 33 Z" fill="#fff"/>
+    <path d="M50 55 L36 66 Q50 74 64 66 Z" fill="#fff"/>
+    <circle cx="40" cy="50" r="3" fill="#2b1a0a"/>
+    <circle cx="60" cy="50" r="3" fill="#2b1a0a"/>
+    <ellipse cx="50" cy="60" rx="4" ry="3" fill="#2b1a0a"/></svg>`,
+
+  bear: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="24" ry="5" fill="#000" opacity="0.08"/>
+    <circle cx="50" cy="58" r="30" fill="#7a4a2a" stroke="#4a2c14" stroke-width="2"/>
+    <circle cx="26" cy="30" r="10" fill="#7a4a2a" stroke="#4a2c14" stroke-width="2"/>
+    <circle cx="74" cy="30" r="10" fill="#7a4a2a" stroke="#4a2c14" stroke-width="2"/>
+    <ellipse cx="50" cy="65" rx="13" ry="11" fill="#c79a6e"/>
+    <circle cx="39" cy="52" r="3" fill="#1a0f08"/>
+    <circle cx="61" cy="52" r="3" fill="#1a0f08"/>
+    <ellipse cx="50" cy="63" rx="5" ry="4" fill="#3a2212"/>
+    <path d="M50 67 Q50 72 45 72 M50 67 Q50 72 55 72" stroke="#3a2212" stroke-width="2" fill="none"/></svg>`,
+
+  camel: `<svg viewBox="0 0 100 100"><ellipse cx="55" cy="88" rx="28" ry="5" fill="#000" opacity="0.08"/>
+    <path d="M18 78 Q15 55 28 48 Q30 35 42 34 Q40 24 48 18 Q56 12 60 22 Q66 20 66 30 Q78 32 78 46 Q86 50 84 62 Q90 66 86 78" fill="#dcb078" stroke="#9c7440" stroke-width="2"/>
+    <ellipse cx="48" cy="22" rx="7" ry="9" fill="#dcb078" stroke="#9c7440" stroke-width="2"/>
+    <circle cx="45" cy="20" r="2" fill="#3a2410"/>
+    <ellipse cx="42" cy="28" rx="3" ry="2" fill="#9c7440"/>
+    <line x1="30" y1="72" x2="28" y2="88" stroke="#9c7440" stroke-width="4" stroke-linecap="round"/>
+    <line x1="45" y1="74" x2="44" y2="88" stroke="#9c7440" stroke-width="4" stroke-linecap="round"/>
+    <line x1="65" y1="74" x2="66" y2="88" stroke="#9c7440" stroke-width="4" stroke-linecap="round"/>
+    <line x1="80" y1="70" x2="82" y2="88" stroke="#9c7440" stroke-width="4" stroke-linecap="round"/></svg>`,
+
+  wolf: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="88" rx="20" ry="5" fill="#000" opacity="0.08"/>
+    <circle cx="50" cy="55" r="28" fill="#8b8f94" stroke="#4d5257" stroke-width="2"/>
+    <path d="M25 35 L17 16 L36 32 Z" fill="#8b8f94" stroke="#4d5257" stroke-width="2"/>
+    <path d="M75 35 L83 16 L64 32 Z" fill="#8b8f94" stroke="#4d5257" stroke-width="2"/>
+    <path d="M50 55 L38 68 Q50 76 62 68 Z" fill="#e8ebec"/>
+    <circle cx="40" cy="50" r="3" fill="#1a1a1a"/>
+    <circle cx="60" cy="50" r="3" fill="#1a1a1a"/>
+    <ellipse cx="50" cy="62" rx="4" ry="3" fill="#1a1a1a"/></svg>`,
+};
+
+function renderAnimals(elId, animalKey, count) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    html += ANIMALS[animalKey] || '';
+  }
+  el.innerHTML = html || '<span class="empty-scene">🚫 No animals here</span>';
+}
+
+renderAnimals('scene1', 'crocodile', 3);
+renderAnimals('scene2', 'panda', 2);
+document.getElementById('scene3').innerHTML = '<span class="empty-scene">🌵 It is empty here...</span>';
+renderAnimals('scene4', 'kangaroo', 3);
+
+// ============ HIGHLIGHT GRAMMAR TOGGLE ============
+const highlightToggle = document.getElementById('highlightToggle');
+highlightToggle.addEventListener('click', () => {
+  const isOn = document.body.classList.toggle('highlight-on');
+  highlightToggle.classList.toggle('on', isOn);
+  highlightToggle.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+});
+
+// ============ SENTENCE BUILDER (Slide 2) ============
+const WORD_BANK = [
+  { word: 'There', cls: 'wb-there' },
+  { word: 'are', cls: 'wb-are' },
+  { word: "aren't", cls: 'wb-arent' },
+  { word: 'some', cls: 'wb-some' },
+  { word: 'any', cls: 'wb-any' },
+  { word: '🐊 crocodiles', cls: 'wb-animal' },
+  { word: '🐼 pandas', cls: 'wb-animal' },
+  { word: '🦘 kangaroos', cls: 'wb-animal' },
+  { word: '🐅 tigers', cls: 'wb-animal' },
+];
+
+const builderTray = document.getElementById('builderTray');
+const builderOutput = document.getElementById('builderOutput');
+let builtSentence = [];
+
+WORD_BANK.forEach(item => {
+  const btn = document.createElement('button');
+  btn.className = 'word-block ' + item.cls;
+  btn.textContent = item.word;
+  btn.addEventListener('click', () => {
+    builtSentence.push(item);
+    renderBuilderOutput();
+  });
+  builderTray.appendChild(btn);
+});
+
+function renderBuilderOutput() {
+  if (builtSentence.length === 0) {
+    builderOutput.innerHTML = '<span class="builder-placeholder">Tap blocks below to build your sentence...</span>';
+    return;
+  }
+  builderOutput.innerHTML = builtSentence
+    .map(item => `<span class="output-word ${item.cls}">${item.word}</span>`)
+    .join('');
+}
+
+document.getElementById('builderClear').addEventListener('click', () => {
+  builtSentence = [];
+  renderBuilderOutput();
+});
+
+document.getElementById('builderSay').addEventListener('click', () => {
+  if (builtSentence.length === 0) return;
+  const text = builtSentence.map(i => i.word.replace(/[^\w\s']/g, '').trim()).join(' ');
+  if ('speechSynthesis' in window) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85;
+    utter.lang = 'en-US';
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+  }
+});
+
+// ============ SLIDE 3: PRACTICE SCENE ============
+function makeSceneGroup(animalKey, count, label) {
+  const wrap = document.createElement('div');
+  wrap.className = 'scene-group';
+  const animalsDiv = document.createElement('div');
+  animalsDiv.className = 'scene-group-animals';
+  for (let i = 0; i < count; i++) {
+    animalsDiv.innerHTML += ANIMALS[animalKey] || '';
+  }
+  const labelDiv = document.createElement('div');
+  labelDiv.className = 'scene-group-label';
+  labelDiv.textContent = label;
+  wrap.appendChild(animalsDiv);
+  wrap.appendChild(labelDiv);
+  return wrap;
+}
+
+const practiceScene = document.getElementById('practiceScene');
+[
+  ['fox', 3, '3 foxes'],
+  ['bear', 2, '2 bears'],
+  ['camel', 2, '2 camels'],
+  ['wolf', 3, '3 wolves'],
+].forEach(([key, count, label]) => {
+  practiceScene.appendChild(makeSceneGroup(key, count, label));
+});
+
+// ============ SLIDE 3: PRACTICE SENTENCES ============
+// Each item: number, animal text, correct polarity ('pos' or 'neg'), prefilled?
+const PRACTICE_ITEMS = [
+  { n: 1, animal: '🦊 foxes', answer: 'pos', prefilled: true },
+  { n: 2, animal: '🐼 pandas', answer: 'neg', prefilled: true },
+  { n: 3, animal: '🐊 crocodiles', answer: 'neg', prefilled: false },
+  { n: 4, animal: '🐫 camels', answer: 'pos', prefilled: false },
+  { n: 5, animal: '🐺 wolves', answer: 'pos', prefilled: false },
+  { n: 6, animal: '🦘 kangaroos', answer: 'neg', prefilled: false },
+  { n: 7, animal: '🐻 bears', answer: 'pos', prefilled: false },
+  { n: 8, animal: '🐅 tigers', answer: 'neg', prefilled: false },
+];
+
+const practiceList = document.getElementById('practiceList');
+
+PRACTICE_ITEMS.forEach(item => {
+  const row = document.createElement('div');
+  row.className = 'practice-item';
+  row.dataset.answer = item.answer;
+
+  const num = document.createElement('div');
+  num.className = 'practice-num';
+  num.textContent = item.n + '.';
+  row.appendChild(num);
+
+  const sentence = document.createElement('div');
+  sentence.className = 'practice-sentence';
+
+  if (item.prefilled) {
+    sentence.innerHTML = `<span>There</span>`;
+    const slot = document.createElement('button');
+    slot.className = 'slot-btn prefilled ' + (item.answer === 'pos' ? 'filled-pos' : 'filled-neg');
+    slot.textContent = item.answer === 'pos' ? 'are / some' : "aren't / any";
+    slot.disabled = true;
+    sentence.appendChild(slot);
+    const animalSpan = document.createElement('span');
+    animalSpan.textContent = item.animal + '.';
+    sentence.appendChild(animalSpan);
+    row.dataset.state = item.answer; // already correct
+  } else {
+    sentence.innerHTML = `<span>There</span>`;
+    const slot = document.createElement('button');
+    slot.className = 'slot-btn';
+    slot.textContent = 'tap to choose';
+    slot.dataset.state = 'unset';
+    slot.addEventListener('click', () => {
+      // cycle: unset -> pos -> neg -> pos ...
+      if (slot.dataset.state === 'unset' || slot.dataset.state === 'neg') {
+        slot.dataset.state = 'pos';
+        slot.textContent = 'are / some';
+        slot.classList.remove('filled-neg');
+        slot.classList.add('filled-pos');
+      } else {
+        slot.dataset.state = 'neg';
+        slot.textContent = "aren't / any";
+        slot.classList.remove('filled-pos');
+        slot.classList.add('filled-neg');
+      }
+      row.classList.remove('correct', 'incorrect');
+      const fb = row.querySelector('.feedback-icon');
+      if (fb) fb.textContent = '';
+    });
+    sentence.appendChild(slot);
+    const animalSpan = document.createElement('span');
+    animalSpan.textContent = item.animal + '.';
+    sentence.appendChild(animalSpan);
+    row.appendChild(sentence);
+    row._slot = slot;
+  }
+
+  if (item.prefilled) row.appendChild(sentence);
+
+  const feedback = document.createElement('div');
+  feedback.className = 'feedback-icon';
+  row.appendChild(feedback);
+
+  practiceList.appendChild(row);
+});
+
+document.getElementById('checkAnswersBtn').addEventListener('click', () => {
+  let correctCount = 0;
+  let totalGraded = 0;
+  const rows = practiceList.querySelectorAll('.practice-item');
+  rows.forEach(row => {
+    const answer = row.dataset.answer;
+    const feedback = row.querySelector('.feedback-icon');
+    const slot = row._slot;
+    row.classList.remove('correct', 'incorrect');
+
+    if (!slot) {
+      // prefilled example, always correct, show check but don't count toward score
+      feedback.textContent = '✅';
+      row.classList.add('correct');
+      return;
+    }
+
+    totalGraded++;
+    const chosen = slot.dataset.state;
+    if (chosen === 'unset') {
+      feedback.textContent = '❔';
+      return;
+    }
+    if (chosen === answer) {
+      feedback.textContent = '✅';
+      row.classList.add('correct');
+      correctCount++;
+    } else {
+      feedback.textContent = '❌';
+      row.classList.add('incorrect');
+    }
+  });
+  document.getElementById('checkScore').textContent = `Score: ${correctCount} / ${totalGraded}`;
+});
+
+// ============ NAVIGATION ============
+const tabs = document.querySelectorAll('.tab-btn');
+const slides = document.querySelectorAll('.slide');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.getAttribute('data-slide');
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    slides.forEach(s => s.hidden = true);
+    document.getElementById('slide' + target).hidden = false;
+    document.getElementById('mainContent').scrollTop = 0;
+  });
+});
+</script>
+
+</body>
+</html>
